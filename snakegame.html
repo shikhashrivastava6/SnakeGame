@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+ <html>
+ <head>
+<title>OOPM project-snake game</title>
+     <style>
+     body{
+         background-color:darkorange;
+     }
+     @-webkit-keyframes Kf{
+         from{background: yellow;}
+         50%{background:red;-webkit-transform:scale(1.3,1.8);}
+         to{background: blue;}
+     }
+     .scene{
+         width:280px;
+         height:280px;
+         background-color:rgb(219, 218, 218);
+         border:dashed 20px yellow;
+         border-top:dashed 20px yellow;
+         border-bottom:dashed 20px yellow;
+         border-left: dashed 20px yellow;
+         -webkit-box-shadow:5px 5px 5px yellow;
+         position:relative;
+     }
+     .game{
+         background-color:crimson;
+         width: device-width;
+         height: 575px;
+         color: white;
+     }
+     table{
+         width:80px;
+         height:80px;
+         margin-top:15px;
+     }
+     td > .key{
+         padding:7px 24px 7px 24px;
+         color:rgb(61, 81, 90);
+         background:rgb(178, 222, 243);
+         font-size:22px;
+         border-radius: 40%;
+     }
+     .key:hover{
+          background:#777;
+     }
+     .sn{
+         width:20px;
+         height:20px;
+         position:absolute;
+         background-color:palevioletred;
+         border-radius: 30%;
+         transition-property: width;
+         transition-duration: 1s;
+     } 
+     .sn:nth-child(odd){
+         background-color:plum;
+     } 
+     
+     .fd{
+         width:20px;
+         height:20px;
+         position:absolute;
+         background:#4af;
+         border-radius:10px;
+         -webkit-animation:500ms Kf 0ms ease infinite;
+     } 
+     .sn0{top:140px;left:200px;background-color:orchid} 
+     .sn1{top:140px;left:220px;} 
+     .sn2{top:140px;left:240px;} 
+     
+     .fd{top:140px ; left:120px;}
+     .s{
+         color: rgb(110, 187, 218);
+         font-size: 30px;
+     }
+     .eye1{
+         background-color:rgb(235, 23, 23);
+         width: 5px;
+         height: 5px;
+         float: left;
+         border-radius: 50%;
+         border: double 1px black;
+         background:yellow;
+     }
+     span{
+         color: burlywood;
+     }
+     .shi1{
+         background-color:skyblue;
+         color: rgb(61, 81, 90);
+         border-radius: 40%;
+     }
+     .tb1{
+         border-radius: 50%;
+     }
+     </style>
+ </head>
+ 
+     <body onload="init();">
+     <center>
+        <div class="game">
+            <div class="scene">
+                <div class="fd"></div>
+                <div class="sn sn0">
+                   <div class="eye1"></div>
+                   <div class="eye1"></div>
+                </div>  
+                <div class="sn sn1"></div> 
+                <div class="sn sn2"></div>
+            </div>
+            <button>EXIT</button>
+            <b class="cntrl"><span class="s">&bull;</span><span class="scr">0</span>&nbsp;&nbsp;|&nbsp;&nbsp;
+                speed: (<span class="speed">1</span>) <button class="sp" id="pos">+</button><button class="sp" id="neg">-</button>&nbsp;&nbsp;|&nbsp;&nbsp;<!--<button class="gamePlayPause" id="paused">play</button>-->
+            </b>
+            <table border="0" bgcolor="cadetblue" class="tb1">
+                <tr><td></td><td style="height:53px;"><span class="key k_up">&#9650;</span></td><td></td></tr>
+                <tr><td><span class="key k_left">&#9664;</span></td> <td><span class="gamePlayPause" id="paused"><button class="shi1"><h2><i>PLAY</i></h2></button></span></td><td><span class="key k_right">&#9654;</span></td></tr> 
+                <tr><td></td><td style="height:53px;"><span class="key k_down">&#9660;</span></td><td></td></tr>
+                <tr><td></td><td></td><td></td></tr> 
+            </table>
+            <br>
+        </div>
+    </center>
+     </body>
+     
+     <script>
+     function init(){
+     function $(s){return document.querySelector(s);}
+     //###########################
+     var L=3;
+     var S=[];
+     for (k=0; k<=140; k+=20){
+         S.push(k);
+     }
+     
+     var Dirn={
+         X: -20,
+         Y: 0,
+     };
+     var Game={
+         Playing:false,
+         End:false,
+         Score:0
+     };
+     var Food={
+         X:120, 
+         Y:140,
+         Throw:function(){
+             Food.X=S[Math.floor(Math.random()*S.length)]; 
+             Food.Y=S[Math.floor(Math.random()*S.length)];
+             $(".fd").style.left=Food.X+"px"; 
+             $(".fd").style.top=Food.Y+"px"; 
+             
+         }
+     };
+     var Snake={
+         Len:3,
+         Head:{X:140, Y:200},
+         Speed:1,
+         Dir:"left",
+         Data:[[140,200],[140,220],[140,240]],
+         AddOne:function(){
+             this.Len=++L;
+             this.Data.push(this.Data[this.Len-2]);
+             $(".scene").innerHTML+="<div class='sn sn"+(L-1)+"'></div>";
+             $(".sn"+(this.Len-1)+"").style.top=this.Data[this.Len-1][1]+"px"; 
+             $(".sn"+(this.Len-1)+"").style.left=this.Data[this.Len-1][0]+"px"; 
+         }
+     };
+     
+     function render(){
+         if (Game.Playing && !Game.End){
+             switch(Snake.Dir){
+             case "top":
+                 Dirn.X=0;  Dirn.Y=-20;
+             break; 
+             case "right":
+                 Dirn.X=20;  Dirn.Y=0; 
+             break; 
+             case "bottom": 
+                 Dirn.X=0;  Dirn.Y=20; 
+             break; 
+             case "left": 
+                 Dirn.X=-20;  Dirn.Y=0; 
+             break; 
+         }
+         
+         moveSnake();
+         checkFood();
+         detect_accident()
+         }
+         
+     
+         setTimeout(render,150-Snake.Speed*10);
+     }
+     render();
+     
+         function moveSnake(){
+             Snake.Head.X+=Dirn.X;
+             Snake.Head.Y+=Dirn.Y; 
+             Snake.Head.X=(Snake.Head.X<0)?260:Snake.Head.X; 
+             Snake.Head.X=(Snake.Head.X>260)?0:Snake.Head.X;  
+             Snake.Head.Y=(Snake.Head.Y<0)?260:Snake.Head.Y; 
+             Snake.Head.Y=(Snake.Head.Y>260)?0:Snake.Head.Y;  
+             Snake.Data.unshift([Snake.Head.X,Snake.Head.Y]);
+             Snake.Data.pop();
+             for (k=0; k<Snake.Len; k++){
+                 $(".sn"+k+"").style.left=Snake.Data[k][0]+"px";
+                 $(".sn"+k+"").style.top=Snake.Data[k][1]+"px" 
+             } 
+         }
+         
+     function checkFood(){
+         if (Snake.Head.X==Food.X && Snake.Head.Y==Food.Y){
+             Snake.AddOne();
+             Food.Throw();
+             Game.Score++;
+             $(".scr").innerHTML=Game.Score;
+         }
+     }
+
+     function detect_accident(){
+         for (k=1; k<Snake.Data.length; k++) {
+             var D=Snake.Data[k];
+             if (D[0]==Snake.Head.X && D[1]==Snake.Head.Y){
+                 Game.Playing=false;
+                 Game.End=true;
+                 $(".cntrl").innerHTML="<span style='color:blue;font ='30px;''><h1>game over</h1> ("+Game.Score+")</span>&nbsp;&nbsp;<button onclick='window.location.reload(true);'>replay</button>"
+             }
+         }
+     }
+         
+
+     $(".gamePlayPause").onclick=pl;
+
+         function pl(e){
+         if (e.target.id=="paused"){
+             e.target.id="playing";
+             e.target.innerHTML="pause";
+             Game.Playing=true;
+         }
+         else{
+             e.target.id="paused";
+             e.target.innerHTML="play";
+             Game.Playing=false;
+         }
+     } 
+
+     $("#pos").onclick=function(e){
+         if (Snake.Speed<12){
+             Snake.Speed++;
+             $(".speed").innerHTML=Snake.Speed;
+         }
+     }
+     $("#neg").onclick=function(e){
+         if (Snake.Speed>1){
+             Snake.Speed--;
+             $(".speed").innerHTML=Snake.Speed;
+         }
+     }
+         
+     //:::::::::keys souris:::::::::::::
+     $(".k_up").onclick=function(){
+         if(Snake.Dir!="bottom") Snake.Dir="top"; 
+     } 
+     $(".k_down").onclick=function(){
+         if(Snake.Dir!="top") Snake.Dir="bottom"; 
+     } 
+     $(".k_left").onclick=function(){
+         if(Snake.Dir!="right") Snake.Dir="left"; 
+     } 
+     $(".k_right").onclick=function(){
+         if(Snake.Dir!="left") Snake.Dir="right"; 
+     } 
+
+     //------------ clavier -----------------/
+     window.addEventListener("keydown",HundlKey,false);
+        function HundlKey(ev){ 
+            if (ev.keyCode===37){if(Snake.Dir!="right") Snake.Dir="left";}
+            if (ev.keyCode===38){if(Snake.Dir!="bottom") Snake.Dir="top";}
+            if (ev.keyCode===39){if(Snake.Dir!="left") Snake.Dir="right"}
+            if (ev.keyCode===40){if(Snake.Dir!="top") Snake.Dir="bottom";}
+            if (ev.keyCode===13){pl();}
+        }
+     //###########################
+     }
+     </script>
+ </html>
